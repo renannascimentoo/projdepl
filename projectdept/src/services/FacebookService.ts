@@ -120,73 +120,47 @@ class FacebookService {
         return;
       }
 
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          this.loadFacebookSDK(resolve);
-        });
+      // Wait for fbAsyncInit to be called
+      if ((window as any).fbAsyncInit) {
+        // SDK is loading, wait for it
+        const checkFB = () => {
+          if ((window as any).FB) {
+            this.isInitialized = true;
+            console.log('Facebook SDK loaded via fbAsyncInit');
+            this.checkLoginStatus();
+            resolve();
+          } else {
+            setTimeout(checkFB, 100);
+          }
+        };
+        checkFB();
       } else {
-        this.loadFacebookSDK(resolve);
+        // fbAsyncInit not set up, wait for DOM ready and check again
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            this.waitForFacebookSDK(resolve);
+          });
+        } else {
+          this.waitForFacebookSDK(resolve);
+        }
       }
     });
 
     return this.initializationPromise;
   }
 
-  private loadFacebookSDK(resolve: () => void): void {
-    // Check if script is already in DOM
-    const existingScript = document.querySelector('script[src*="connect.facebook.net"]');
-    if (existingScript) {
-      // Wait for FB to be available
-      const checkFB = () => {
-        if ((window as any).FB) {
-          this.initializeFB();
-          resolve();
-        } else {
-          setTimeout(checkFB, 100);
-        }
-      };
-      checkFB();
-      return;
-    }
-
-    // Load Facebook SDK
-    const script = document.createElement('script');
-    script.src = 'https://connect.facebook.net/pt_BR/sdk.js';
-    script.async = true;
-    script.defer = true;
-    script.crossOrigin = 'anonymous';
-    
-    script.onload = () => {
-      this.initializeFB();
-      resolve();
+  private waitForFacebookSDK(resolve: () => void): void {
+    const checkFB = () => {
+      if ((window as any).FB) {
+        this.isInitialized = true;
+        console.log('Facebook SDK loaded and ready');
+        this.checkLoginStatus();
+        resolve();
+      } else {
+        setTimeout(checkFB, 100);
+      }
     };
-    
-    script.onerror = () => {
-      console.error('Failed to load Facebook SDK');
-      resolve();
-    };
-    
-    document.head.appendChild(script);
-  }
-
-  private initializeFB(): void {
-    try {
-      (window as any).FB.init({
-        appId: this.appId,
-        cookie: true,
-        xfbml: true,
-        version: 'v20.0'
-      });
-      
-      this.isInitialized = true;
-      console.log('Facebook SDK initialized successfully with App ID:', this.appId);
-      
-      // Check login status on initialization
-      this.checkLoginStatus();
-    } catch (error) {
-      console.error('Error initializing Facebook SDK:', error);
-    }
+    checkFB();
   }
 
   private checkLoginStatus(): void {
@@ -218,7 +192,7 @@ class FacebookService {
       if (!this.isInitialized || !(window as any).FB) {
         return {
           success: false,
-          error: 'Facebook SDK não foi carregado corretamente'
+          error: 'Facebook SDK não foi carregado corretamente. Verifique se o domínio está configurado no Facebook App.'
         };
       }
 
@@ -241,9 +215,15 @@ class FacebookService {
             });
           } else {
             console.log('Facebook login failed or cancelled');
-            const errorMsg = response.error ? 
-              `Erro: ${response.error.message}` : 
-              'Login cancelado ou erro de autenticação';
+            let errorMsg = 'Login cancelado ou erro de autenticação';
+            
+            if (response.error) {
+              errorMsg = `Erro: ${response.error.message}`;
+            } else if (response.status === 'not_authorized') {
+              errorMsg = 'Usuário não autorizou o aplicativo';
+            } else if (response.status === 'unknown') {
+              errorMsg = 'Erro de conexão com Facebook. Verifique se o domínio está configurado corretamente.';
+            }
             
             resolve({ 
               success: false, 
@@ -258,7 +238,7 @@ class FacebookService {
       console.error('Error in connectToFacebook:', error);
       return {
         success: false,
-        error: 'Erro inesperado ao conectar com Facebook'
+        error: 'Erro inesperado ao conectar com Facebook. Verifique se o domínio https://projdepl-hdse.vercel.app está configurado no Facebook App.'
       };
     }
   }

@@ -24,6 +24,26 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Facebook SDK for JavaScript -->
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '719329824130109',
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v20.0'
+        });
+          
+        FB.AppEvents.logPageView();   
+          
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/pt_BR/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
   </body>
 </html>
