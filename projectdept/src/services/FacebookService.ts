@@ -71,7 +71,7 @@ interface FacebookConnection {
 
 class FacebookService {
   private static instance: FacebookService;
-  private appId = '719329824130109'; // Seu App ID
+  private appId = '1349339919492981'; // Novo App ID fornecido pelo usuário
   private isInitialized = false;
   private initializationPromise: Promise<void> | null = null;
   private connection: FacebookConnection = {
