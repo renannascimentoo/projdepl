@@ -137,7 +137,7 @@ export const FacebookConnection: React.FC<FacebookConnectionProps> = ({ onConnec
             <div className="space-y-2 text-xs text-gray-500">
               <div className="flex items-center justify-center space-x-2">
                 <Shield className="w-3 h-3" />
-                <span>App ID: 719329824130109</span>
+                <span>App ID: 1349339919492981</span>
               </div>
               <div className="flex items-center justify-center space-x-2">
                 <Globe className="w-3 h-3" />
@@ -360,7 +360,7 @@ export const FacebookConnection: React.FC<FacebookConnectionProps> = ({ onConnec
         <div className="flex items-center justify-center space-x-4">
           <div className="flex items-center space-x-1">
             <Facebook className="w-4 h-4 text-blue-600" />
-            <span>App ID: 719329824130109</span>
+            <span>App ID: 1349339919492981</span>
           </div>
           <span>•</span>
           <div className="flex items-center space-x-1">
