@@ -231,7 +231,7 @@ class FacebookService {
             });
           }
         }, {
-          scope: 'public_profile,email,user_posts,user_photos,user_friends,pages_read_engagement'
+          scope: 'public_profile,email'
         });
       });
     } catch (error) {
